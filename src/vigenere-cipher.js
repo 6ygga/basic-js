@@ -6,24 +6,34 @@ class VigenereCipheringMachine {
   regexp = /[a-zA-Z]/;
 
   constructor(param){
-    this.direction = (!param ? false : true);
+    this.direction = ((!param && param != undefined) ? false : true);
   }
   encrypt(message, key) {
+    if (!message || !key) throw new Error();
+    let index = 0;
     let keystring = key;
     while (keystring.length < message.length) {keystring += key;}
     keystring = keystring.slice(0, message.length);
-    const messageArr = message.split('').
-      reduce((res, item, index) => {
+    const resStr = message.split('').reduce((res, item) => {
       return (this.regexp.test(item)) ?
-          res.concat(this.letterArr(keystring[index])[this.alphabet.indexOf(item.toUpperCase())]) :
+          res.concat(this.letterArr(keystring[index++])[this.alphabet.indexOf(item.toUpperCase())]) :
           res.concat(item);
-    }, []);
-    const encrypted = messageArr.join();
+    }, []).join('');
+    return this.direction ? resStr : resStr.split('').reverse().join('');
 
-    return encrypted;
   }
   decrypt(encryptedMessage, key) {
-  return encryptedMessage;
+    if (!encryptedMessage || !key) throw new Error();
+    let index = 0;
+    let keystring = key;
+    while (keystring.length < encryptedMessage.length) {keystring += key;}
+    keystring = keystring.slice(0, encryptedMessage.length);
+    const resStr = encryptedMessage.split('').reduce((res, item) => {
+      return (this.regexp.test(item)) ?
+          res.concat(this.alphabet[this.letterArr(keystring[index++]).indexOf(item.toUpperCase())]) :
+          res.concat(item);
+    }, []).join('');
+    return this.direction ? resStr : resStr.split('').reverse().join('');
   }
 
   letterArr(letter) {
